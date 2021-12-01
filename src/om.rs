@@ -8,6 +8,7 @@ use std::sync::atomic::{AtomicI32, Ordering};
 use capi::sctypes::{LPVOID, LPCSTR};
 pub use capi::scom::*;
 
+use log::debug;
 
 /// Get the index of an interned string.
 pub fn atom(name: &str) -> som_atom_t {
@@ -98,7 +99,7 @@ impl<T> IAssetRef<T> {
 impl<T> IAssetRef<T> {
 	/// Construct from a raw pointer, incrementing the reference count.
 	pub fn from_raw(asset: *mut som_asset_t) -> Self {
-		eprintln!("IAssetRef<{}>::from({:?})", std::any::type_name::<T>(), asset);
+		debug!("IAssetRef<{}>::from({:?})", std::any::type_name::<T>(), asset);
 		assert!(!asset.is_null());
 		let me = Self {
 			asset,
@@ -181,7 +182,7 @@ impl<T> Drop for IAsset<T> {
 	fn drop(&mut self) {
 		let rc = self.refc.load(Ordering::SeqCst);
 		if rc != 0 {
-			eprintln!("asset<{}>::drop with {} references alive", std::any::type_name::<T>(), rc);
+			debug!("asset<{}>::drop with {} references alive", std::any::type_name::<T>(), rc);
 		}
 		assert_eq!(rc, 0);
 		// allocated in `iasset::new()`
@@ -248,7 +249,7 @@ impl<T: Passport> IAsset<T> {
 		}
 		extern "C" fn asset_get_interface<T>(_thing: *mut som_asset_t, name: LPCSTR, _out: *mut *mut som_asset_t) -> bool {
 			let name = u2s!(name);
-			eprintln!("iasset<T>::get_interface({}) is not implemented.", name);
+			debug!("iasset<T>::get_interface({}) is not implemented.", name);
 			return false;
 		}
 		extern "C" fn asset_get_passport<T: Passport>(thing: *mut som_asset_t) -> *const som_passport_t

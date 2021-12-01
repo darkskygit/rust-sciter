@@ -3,6 +3,7 @@ use capi::scbehavior::*;
 use capi::scdom::{HELEMENT};
 use value::Value;
 use dom::event::EventHandler;
+use log::debug;
 
 #[repr(C)]
 pub(crate) struct WindowHandler<T>
@@ -101,7 +102,7 @@ fn process_events(me: &mut dyn EventHandler, he: HELEMENT, evtg: UINT, params: L
 		&& evtg != EVENT_GROUPS::HANDLE_INITIALIZATION
 		&& evtg != EVENT_GROUPS::HANDLE_SOM
 	{
-		eprintln!("[sciter] warning! null element for {:04X}", evtg as u32);
+		debug!("[gui] warning! null element for {:04X}", evtg as u32);
 	}
 
 	let result = match evtg {
@@ -181,7 +182,7 @@ fn process_events(me: &mut dyn EventHandler, he: HELEMENT, evtg: UINT, params: L
 			};
 
 			if he.is_null() && code != BEHAVIOR_EVENTS::MEDIA_CHANGED {
-				eprintln!("[sciter] warning! null element for {:?}:{:?}", evtg, code);
+				debug!("[gui] warning! null element for {:?}:{:?}", evtg, code);
 			}
 
 			if phase == PHASE_MASK::SINKING {	// catch this only once
@@ -298,7 +299,7 @@ fn process_events(me: &mut dyn EventHandler, he: HELEMENT, evtg: UINT, params: L
 
 		// unknown `EVENT_GROUPS` notification
 		_ => {
-			eprintln!("[sciter] warning! unknown event group {:04X}", evtg as u32);
+			debug!("[gui] warning! unknown event group {:04X}", evtg as u32);
 			false
 		},
 	};

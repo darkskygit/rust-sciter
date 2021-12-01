@@ -7,6 +7,7 @@ use capi::screquest::HREQUEST;
 use capi::schandler::NativeHandler;
 use dom::{self, event::EventHandler};
 use eventhandler::*;
+use log::{debug, info};
 use value::{Value};
 
 pub use capi::scdef::{LOAD_RESULT, OUTPUT_SUBSYTEMS, OUTPUT_SEVERITY};
@@ -96,10 +97,10 @@ pub trait HostHandler {
 		if !message.is_empty() {
 			if severity == OUTPUT_SEVERITY::INFO {
 				// e.g. `stdout.println` in TIScript
-				println!("{:?}:{:?}: {}", severity, subsystem, message);
+				info!("{:?}:{:?}: {}", severity, subsystem, message);
 			} else {
 				// e.g. `stderr.println` or CSS/script errors and warnings.
-				eprintln!("{:?}:{:?}: {}", severity, subsystem, message);
+				debug!("{:?}:{:?}: {}", severity, subsystem, message);
 			}
 		}
 	}
@@ -437,7 +438,7 @@ extern "system" fn _on_handle_notification<T: HostHandler>(pnm: *mut ::capi::scd
             if let Some(data) = archive.get(&uri) {
               me.data_ready(scnm.hwnd, &uri, data, None);
             } else {
-              eprintln!("[sciter] error: can't load {:?}", uri);
+              debug!("[gui] error: can't load {:?}", uri);
             }
           }
           re = Some(LOAD_RESULT::LOAD_DEFAULT);
